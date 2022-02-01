@@ -1,0 +1,19 @@
+- file:
+    path: "{{ janus_dir }}/{{ item }}"
+    state: directory
+  with_items:
+    - nginx
+    - ssl
+    - letsencrypt
+- template:
+    src: nginx.conf.j2
+    dest: "{{ janus_dir }}/nginx/nginx.conf"
+- docker_container:
+    network_mode: host
+    name: janus
+    volumes:
+      - "{{ janus_dir }}/nginx/nginx.conf:/usr/local/nginx/nginx.conf"
+      - "{{ janus_dir }}/nginx/ssl:/usr/local/etc/ssl"
+      - "{{ janus_dir }}/nginx/letsencrypt:/etc/letsencrypt"
+    image: atyenoria/janus-webrtc-gateway-docker
+# TODO: Include apt install python3-certbot-nginx in image

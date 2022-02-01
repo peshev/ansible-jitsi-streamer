@@ -1,0 +1,17 @@
+# https://github.com/nodesource/distributions/blob/master/README.md
+- name: 1. Remove the old PPA if it exists
+  apt_repository:
+    repo: ppa:chris-lea/node.js
+    state: absent
+- name: 2. Add the NodeSource package signing key
+  apt_key:
+    url: "{{ nodejs_nodesource_key_url }}"
+    keyring: "{{ nodejs_nodesource_keyring }}"
+    id: "{{ nodejs_nodesource_key_id }}"
+- name: 3. Add the desired NodeSource repository
+  apt_repository:
+    repo: "{{ nodejs_nodesource_repo }}"
+- name: 4. Update package lists and install Node.js
+  apt:
+    update_cache: yes
+    name: nodejs

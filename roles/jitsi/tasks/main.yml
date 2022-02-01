@@ -1,0 +1,50 @@
+# https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-docker
+- name: Assert that we're fetchine either a release or from a repo, but not both
+  assert:
+    that: (jitsi_docker_jitsi_meet_release_url or jitsi_docker_jitsi_meet_repo_url) and not (jitsi_docker_jitsi_meet_release_url and jitsi_docker_jitsi_meet_repo_url)
+- name: Create docker-jitsi-meet directory
+  file:
+    path: "{{ jitsi_docker_jitsi_meet_dir }}"
+    state: directory
+- name: Download docker-jitsi-meet relase
+  get_url:
+    url: "{{ jitsi_docker_jitsi_meet_release_url }}"
+    dest: "{{ jitsi_docker_jitsi_meet_download_dest }}"
+    checksum: sha256:3e909fad01cd78c55baad22774dcc1efd7adcfe7d5fb3867cd286286ca333458
+  when: jitsi_docker_jitsi_meet_release_url
+- name: Extract docker-jitsi-meet relase archive
+  unarchive:
+    src: "{{ jitsi_docker_jitsi_meet_download_dest }}"
+    dest: "{{ jitsi_docker_jitsi_meet_base_dir }}"
+    remote_src: yes
+  when: jitsi_docker_jitsi_meet_release_url
+- name: Clone docker-jitsi-meet repo
+  git:
+    repo: "{{ jitsi_docker_jitsi_meet_repo_url }}"
+    dest: "{{ jitsi_docker_jitsi_meet_dir }}"
+  when: jitsi_docker_jitsi_meet_repo_url
+- name: Create a .env file by copying env.example
+  copy:
+    src: "{{ jitsi_docker_jitsi_meet_dir }}/env.example"
+    dest: "{{ jitsi_docker_jitsi_meet_dir }}/.env"
+    remote_src: yes
+    force: no
+- name: Adjust configuration in .env
+  lineinfile:
+    path: "{{ jitsi_docker_jitsi_meet_dir }}/.env"
+    regexp: "#?{{ item.key }}=.*"
+    line: "{{ item.key }}={{ item.value }}"
+  with_dict: "{{ jitsi_config }}"
+- name: Create required CONFIG directories
+  file:
+    path: "{{ jitsi_docker_jitsi_meet_config_dir }}/{{ item }}"
+    state: directory
+  with_items: "{{ jitsi_config_dirs }}"
+- name: Create docker-compose.overrides.yml
+  copy:
+    dest: "{{ jitsi_docker_jitsi_meet_dir }}/docker-compose.override.yml"
+    content: "{{ jitsi_docker_jitsi_meet_docker_compose_override | to_nice_yaml }}"
+  when: jitsi_docker_jitsi_meet_docker_compose_override
+- name: Run docker-compose up -d
+  docker_compose:
+    project_src: "{{ jitsi_docker_jitsi_meet_dir }}"

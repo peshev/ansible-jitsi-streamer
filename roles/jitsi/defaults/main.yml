@@ -1,0 +1,22 @@
+jitsi_docker_jitsi_meet_repo_url: ~ # https://github.com/jitsi/docker-jitsi-meet.git
+jitsi_docker_jitsi_meet_release: 6826
+jitsi_docker_jitsi_meet_filename: "stable-{{ jitsi_docker_jitsi_meet_release }}.tar.gz"
+jitsi_docker_jitsi_meet_release_url: "https://github.com/jitsi/docker-jitsi-meet/archive/refs/tags/{{ jitsi_docker_jitsi_meet_filename }}"
+jitsi_docker_jitsi_meet_download_dir: /tmp
+jitsi_docker_jitsi_meet_download_dest: "{{ jitsi_docker_jitsi_meet_download_dir }}/{{ jitsi_docker_jitsi_meet_filename }}"
+jitsi_docker_jitsi_meet_base_dir: /root/src
+jitsi_docker_jitsi_meet_dir: "{{ jitsi_docker_jitsi_meet_base_dir }}/docker-jitsi-meet-stable-{{ jitsi_docker_jitsi_meet_release }}"
+jitsi_docker_jitsi_meet_config_dir: /root/.jitsi-meet-cfg
+jitsi_docker_jitsi_meet_docker_compose_override: {}
+jitsi_config: { }
+
+jitsi_config_dirs:
+  - web/crontabs
+  - web/letsencrypt
+  - transcripts
+  - prosody/config
+  - prosody/prosody-plugins-custom
+  - jicofo
+  - jvb
+  - jigasi
+  - jibri

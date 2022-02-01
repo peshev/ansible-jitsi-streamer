@@ -1,0 +1,13 @@
+- name: Clone git repo
+  git:
+    repo: "{{ jitsi_streaming_client_repo_url }}"
+    dest: "{{ jitsi_streaming_client_dir }}"
+- name: Install npm dependencies
+  npm:
+    path: "{{ jitsi_streaming_client_dir }}"
+    ci: yes
+- name: Build
+  command:
+    cmd: npm run build
+    chdir: "{{ jitsi_streaming_client_dir }}"
+  # TODO: Checksum files in dist/ and then check them again after build to figure out if changed
